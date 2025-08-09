@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Checkout - Sílour Beauty</title>
+  <link rel="stylesheet" href="styles.css"/>
+</head>
+<body>
+  <header>
+    <div class="logo">
+      <img src="img/logo.png" alt="Sílour Beauty" />
+    </div>
+    <nav>
+      <a href="index.html">Inicio</a>
+      <a href="index.html#catalogo">Catálogo</a>
+      <a href="checkout.html">Carrito</a>
+    </nav>
+  </header>
+
+  <main id="checkout">
+    <h1>Resumen de compra</h1>
+    <div id="cartItems"></div>
+    <h2 id="totalPrice"></h2>
+
+    <!-- Métodos de pago -->
+    <div class="payment-methods" style="background-color:#DDD0C0;padding:10px;border-radius:10px;margin-top:20px;">
+      <img src="img/icon-daviplata.png" alt="Daviplata" style="height:30px;margin:5px;">
+      <img src="img/icon-nequi.png" alt="Nequi" style="height:30px;margin:5px;">
+      <img src="img/icon-card.png" alt="Tarjeta" style="height:30px;margin:5px;">
+      <img src="img/icon-paypal.png" alt="PayPal" style="height:30px;margin:5px;">
+      <p style="color:#CBA26B; font-weight:bold; margin-top:10px;">Pagos 100% seguros procesados por Wompi</p>
+    </div>
+
+    <!-- Botón de pago Wompi -->
+    <button id="payButton" style="margin-top:20px;">Pagar con Wompi</button>
+  </main>
+
+  <script src="productos.js"></script>
+  <script>
+    const WOMPI_PUBLIC_KEY = "pub_test_key_here"; // Modo pruebas
+    let cart = JSON.parse(localStorage.getItem('cart')) || [];
+    const cartContainer = document.getElementById("cartItems");
+    let total = 0;
+
+    if (cart.length === 0) {
+      cartContainer.innerHTML = "<p>Tu carrito está vacío</p>";
+    } else {
+      cart.forEach(item => {
+        const finalPrice = calculateFinalPrice(item.price, item.discount);
+        total += finalPrice;
+
+        const div = document.createElement("div");
+        div.classList.add("cart-item");
+        div.innerHTML = `
+          <p><strong>${item.name}</strong> - $${finalPrice.toLocaleString()}</p>
+        `;
+        cartContainer.appendChild(div);
+      });
+    }
+
+    document.getElementById("totalPrice").textContent = "Total: $" + total.toLocaleString();
+
+    document.getElementById("payButton").addEventListener("click", () => {
+      // Total en centavos
+      const amountInCents = total * 100;
+      const checkoutUrl = `https://checkout.wompi.co/p/?public-key=${WOMPI_PUBLIC_KEY}&currency=COP&amount-in-cents=${amountInCents}&reference=${Date.now()}`;
+      window.location.href = checkoutUrl;
+    });
+  </script>
+</body>
+</html>
